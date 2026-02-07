@@ -1,0 +1,36 @@
+cancel-in-progress: Build
+
+# https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency
+concurrency:
+  group: "build"
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      # choose your default branch
+      - master
+      - main
+    paths-ignore:
+      - '*.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          path: "src"
+
+      - name: Checkout builds
+        uses: actions/checkout@v5
+        with:
+          ref: "builds"
+          path: "builds"
+
+      - name: Clean old builds
+        run: |
+          rm $GITHUB_WORKSPACE/builds/*.cs3 || true
+          rm $GITHUB_WORKSPACE/builds/*.jar || true
+
